@@ -18,4 +18,23 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="shop_url">Web page</string>
+    <string name="shop_active">Active</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+    <string name="holidays">Holidays</string>
+    <string name="notes">Notes</string>
+    <string name="menu_done">Done</string>
+    <string name="menu_cancel">Cancel</string>
+
+    <string-array name="shop_size_array">
+        <item>Small (local grocery Store)</item>
+        <item>Medium (multiple checkouts)</item>
+        <item>Large (large shopping center)</item>
+    </string-array>
 </resources>

@@ -116,20 +116,41 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
 
     @Override
     public void onMapLongClick(LatLng point) {
-        mMap.addMarker(new MarkerOptions()
-                .position(point)
-                .title("Nejakej shop")
+        Intent intent = new Intent(this, EditShopActivity.class);
+        intent.putExtra("position", point);
+        startActivityForResult(intent, 1);
+
+
+//        mMap.addMarker(new MarkerOptions()
+//                .position(point)
+//                .title("Nejakej shop")
+//                .icon(BitmapDescriptorFactory.fromResource(R.drawable.shopping_cart_24px)));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == 1) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                mMap.addMarker(new MarkerOptions()
+                .position((LatLng)data.getParcelableExtra("position"))
+                .title(data.getStringExtra("name"))
+                .snippet(data.getStringExtra("address"))
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.shopping_cart_24px)));
+            }
+        }
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        marker.setTitle("Title");
-        marker.setSnippet("Snippet");
         marker.showInfoWindow();
         return false;
 //        Intent intent = new Intent(this, EditShopActivity.class);
 //        startActivity(intent);
 //        return false;
     }
+
+
+
 }
