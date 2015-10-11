@@ -21,6 +21,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.shopmy.shopmy.adapter.ShopInfoWindowAdapter;
+import com.shopmy.shopmy.format.HourMinuteFormatter;
+import com.shopmy.shopmy.model.ShopInfo;
+import com.shopmy.shopmy.model.TimeSpan;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class ShopListActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerClickListener {
 
@@ -137,12 +143,6 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
         Intent intent = new Intent(this, EditShopActivity.class);
         intent.putExtra("position", point);
         startActivityForResult(intent, 1);
-
-
-//        mMap.addMarker(new MarkerOptions()
-//                .position(point)
-//                .title("Nejakej shop")
-//                .icon(BitmapDescriptorFactory.fromResource(R.drawable.shopping_cart_24px)));
     }
 
     @Override
@@ -151,11 +151,35 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
         if (requestCode == 1) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
+                ShopInfo si = data.getParcelableExtra("shopInfo");
+                StringBuilder sb = new StringBuilder();
+
+                HashMap<String, List<TimeSpan>> openingHours = si.getOpeningHours();
+
+                for (ShopInfo.DAYS day : ShopInfo.DAYS.values()){
+                    sb.append("<b>");
+                    sb.append(getResources().getString(
+                                getResources()
+                                        .getIdentifier(
+                                                day.toString(), "string", this.getPackageName())));
+                    sb.append("</b>: ");
+                    List<TimeSpan> spans = openingHours.get(day.toString());
+                    if (spans == null || spans.isEmpty()){
+                        sb.append(getResources().getString(R.string.closed));
+                    } else {
+                        for (TimeSpan span : spans){
+                            sb.append(HourMinuteFormatter.formatTimeSpan(span) + ", ");
+                        }
+                    }
+                    sb.append("<br/>");
+                }
+
                 mMap.addMarker(new MarkerOptions()
-                .position((LatLng)data.getParcelableExtra("position"))
-                .title(data.getStringExtra("name"))
-                .snippet(data.getStringExtra("address"))
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.shopping_cart_24px)));
+                        .position(si.getPosition())
+                        .title(si.getName())
+                        .snippet(sb.toString())
+                        .draggable(true)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.shopping_cart_24px)));
             }
         }
     }

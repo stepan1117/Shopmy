@@ -1,5 +1,6 @@
 package com.shopmy.shopmy.adapter;
 
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -25,7 +26,7 @@ public class ShopInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         TextView tvTitle = (TextView)myContentsView.findViewById(R.id.title);
         tvTitle.setText(marker.getTitle());
         TextView tvSnippet = ((TextView)myContentsView.findViewById(R.id.snippet));
-        tvSnippet.setText(marker.getSnippet());
+        tvSnippet.setText(Html.fromHtml(marker.getSnippet()));
 
         return myContentsView;
     }

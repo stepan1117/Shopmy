@@ -37,9 +37,8 @@
         <i>8:00-11:30, 12:30-17:00</i>. Leave blank for Closed.
     </string>
     <string name="error_shop_name_empty">Shop name cannot be empty</string>
-    <string name="question_copy_opening_hours">Do you want to use opening hours for Monday
-        for all other days, too? This will replace all existing values.
-    </string>
+    <string name="question_copy_opening_hours">Copy opening hours for Monday
+        to all days?</string>
 
     <string-array name="shop_size_array">
         <item>Small (local grocery Store)</item>

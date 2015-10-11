@@ -14,285 +14,274 @@
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:layout_alignBottom="@+id/footer"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:fillViewport="true"
         android:paddingBottom="50dp"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:layout_alignBottom="@+id/footer"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:paddingTop="@dimen/activity_vertical_margin">
 
-        <RelativeLayout
-            android:id="@+id/form_layout"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
 
-            <LinearLayout
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/shopActiveCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:button="@null"
+                android:checked="true"
+                android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
+                android:enabled="true"
+                android:text="@string/shop_active" />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/inputLayoutShopName"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:orientation="vertical">
-
-                <CheckBox
-                    android:button="@null"
-                    android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
-                    android:id="@+id/shopActiveCheckBox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:checked="true"
-                    android:enabled="true"
-                    android:text="@string/shop_active" />
+                android:layout_height="wrap_content">
 
                 <EditText
                     android:id="@+id/shopNameEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/shop_name"
-                    android:maxLength="@integer/shop_name_max_length"
-                    android:inputType="text"/>
+                    android:inputType="text"
+                    android:maxLength="@integer/shop_name_max_length" />
+            </android.support.design.widget.TextInputLayout>
 
-                <EditText
-                    android:id="@+id/shopAddressEdit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:hint="@string/shop_address"
-                    android:inputType="textPostalAddress" />
+            <EditText
+                android:id="@+id/shopAddressEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/shop_address"
+                android:inputType="textPostalAddress" />
 
-                <EditText
-                    android:id="@+id/shopWebPageEdit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:hint="@string/shop_url"
-                    android:inputType="textEmailAddress" />
+            <EditText
+                android:id="@+id/shopWebPageEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/shop_url"
+                android:inputType="textEmailAddress" />
 
-                <Spinner
-                    android:id="@+id/shopSizeSpinner"
+            <Spinner
+                android:id="@+id/shopSizeSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/shop_size_array"
+                android:focusable="true"
+                android:text="ahoj" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/activity_horizontal_margin"
+                android:text="Opening hours"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <View
+                android:id="@+id/openingHoursDivider"
+                android:layout_width="fill_parent"
+                android:layout_height="2dip"
+                android:background="@android:color/darker_gray" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/openingHoursHint"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+
+            <TableLayout
+                android:id="@+id/openingHoursTableLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:stretchColumns="0">
+
+                <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:entries="@array/shop_size_array"
-                    android:focusable="true"
-                    android:text="ahoj"/>
+                    android:layout_height="wrap_content">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Opening hours"
-                    android:paddingTop="@dimen/activity_horizontal_margin"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <View
-                    android:layout_width="fill_parent"
-                    android:layout_height="2dip"
-                    android:background="@android:color/darker_gray"
-                    android:id="@+id/openingHoursDivider" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/openingHoursHint"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-
-
-                <TableLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:stretchColumns="1"
-                    android:id="@+id/openingHoursTableLayout"
-                    >
-
-                    <TableRow
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/monday"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/inputLayoutopeningHoursMonday"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
 
                         <EditText
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:id="@+id/openingHoursMondayEdit"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:hint="@string/closed"
+                            android:hint="@string/monday"
                             android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </android.support.design.widget.TextInputLayout>
 
-                        <ImageButton
-                            android:id="@+id/buttonUseForAllOtherDays"
-                            android:layout_width="wrap_content"
-                            android:layout_height="@dimen/edit_hours_button_size"
-                            android:src="@android:drawable/arrow_down_float" />
-
-                    </TableRow>
-
-                    <TableRow
+                    <ImageButton
+                        android:id="@+id/buttonUseForAllOtherDays"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="@dimen/edit_hours_button_size"
+                        android:src="@android:drawable/arrow_down_float" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/tuesday"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/inputLayoutopeningHoursTuesday"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
 
                         <EditText
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:id="@+id/openingHoursTuesdayEdit"
+                            
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:hint="@string/closed"
+                            android:hint="@string/tuesday"
                             android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </android.support.design.widget.TextInputLayout>
+                </TableRow>
 
-                    </TableRow>
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-                    <TableRow
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/wednesday"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/inputLayoutopeningHoursWednesday"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
 
                         <EditText
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:id="@+id/openingHoursWednesdayEdit"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:hint="@string/closed"
+                            android:hint="@string/wednesday"
                             android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </android.support.design.widget.TextInputLayout>
+                </TableRow>
 
-                    </TableRow>
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-                    <TableRow
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/thursday"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/inputLayoutopeningHoursThursday"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
 
                         <EditText
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:id="@+id/openingHoursThursdayEdit"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:hint="@string/closed"
+                            android:hint="@string/thursday"
                             android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </android.support.design.widget.TextInputLayout>
+                </TableRow>
 
-                    </TableRow>
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-                    <TableRow
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/friday"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/inputLayoutopeningHoursFriday"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
 
                         <EditText
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:id="@+id/openingHoursFridayEdit"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:hint="@string/closed"
+                            android:hint="@string/friday"
                             android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </android.support.design.widget.TextInputLayout>
 
-                    </TableRow>
+                </TableRow>
 
-                    <TableRow
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/saturday"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/inputLayoutopeningHoursSaturday"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
 
                         <EditText
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:id="@+id/openingHoursSaturdayEdit"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:hint="@string/closed"
+                            android:hint="@string/saturday"
                             android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </android.support.design.widget.TextInputLayout>
 
-                    </TableRow>
+                </TableRow>
 
-                    <TableRow
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/sunday"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/inputLayoutopeningHoursSunday"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
 
                         <EditText
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:id="@+id/openingHoursSundayEdit"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:hint="@string/closed"
+                            android:hint="@string/sunday"
                             android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </android.support.design.widget.TextInputLayout>
+                </TableRow>
 
-                    </TableRow>
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-                    <TableRow
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/holidays"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/inputLayoutopeningHoursHolidays"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
 
                         <EditText
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:id="@+id/openingHoursHolidaysEdit"
+                            android:id="@+id/openingHoursHolidayEdit"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:hint="@string/closed"
+                            android:hint="@string/holidays"
                             android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </android.support.design.widget.TextInputLayout>
 
-                    </TableRow>
+                </TableRow>
 
-                </TableLayout>
+            </TableLayout>
 
-              </LinearLayout>
+        </LinearLayout>
 
-
-        </RelativeLayout>
 
     </ScrollView>
 

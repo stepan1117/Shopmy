@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
@@ -19,7 +21,12 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.shopmy.shopmy.adapter.NothingSelectedSpinnerAdapter;
+import com.shopmy.shopmy.exception.TimeSpanParseException;
+import com.shopmy.shopmy.model.OpeningHours;
+import com.shopmy.shopmy.model.ShopInfo;
+import com.shopmy.shopmy.parser.OpeningHoursParser;
 import com.shopmy.shopmy.validation.TextValidator;
 
 import java.util.ArrayList;
@@ -40,25 +47,26 @@ public class EditShopActivity extends AppCompatActivity {
         final EditText shopNameEdit = (EditText) findViewById(R.id.shopNameEdit);
         final EditText shopAddressEdit = (EditText) findViewById(R.id.shopAddressEdit);
 
-
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("position", getIntent().getParcelableExtra("position"));
-                returnIntent.putExtra("name", shopNameEdit.getText().toString());
-                returnIntent.putExtra("address", shopAddressEdit.getText().toString());
+
+                ShopInfo si = buildShopInfo((LatLng)getIntent().getParcelableExtra("position"));
+                if (si == null){
+                    return;
+                }
+                returnIntent.putExtra("shopInfo", si);
                 setResult(RESULT_OK, returnIntent);
                 finish();
             }
@@ -97,10 +105,12 @@ public class EditShopActivity extends AppCompatActivity {
         shopNameEdit.addTextChangedListener(new TextValidator(shopNameEdit) {
             @Override
             public void validate(TextView textView, String text) {
+                TextInputLayout layout = (TextInputLayout) textView.getParent();
                 if (TextUtils.isEmpty(text)) {
-                    textView.setError(getResources().getText(R.string.error_shop_name_empty));
+                    layout.setError(getResources().getText(R.string.error_shop_name_empty));
                 } else {
-                    textView.setError(null);
+                    layout.setError(null);
+                    layout.setErrorEnabled(false);
                 }
             }
         });
@@ -109,7 +119,14 @@ public class EditShopActivity extends AppCompatActivity {
             et.addTextChangedListener(new TextValidator(et) {
                 @Override
                 public void validate(TextView textView, String text) {
-
+                    TextInputLayout layout = ((TextInputLayout)textView.getParent());
+                    try {
+                        new OpeningHoursParser().fromString(text);
+                        layout.setError(null);
+                        layout.setErrorEnabled(false);
+                    } catch (TimeSpanParseException e) {
+                        layout.setError(e.getMessage());
+                    }
                 }
             });
         }
@@ -120,9 +137,54 @@ public class EditShopActivity extends AppCompatActivity {
         TableLayout layout = (TableLayout)findViewById(R.id.openingHoursTableLayout);
         for (int i = 0; i < layout.getChildCount(); i++){
             TableRow row = (TableRow)layout.getChildAt(i);
-            editTextList.add((EditText) row.getChildAt(1));
+            editTextList.add((EditText) ((TextInputLayout)row.getChildAt(0)).getChildAt(0));
         }
         return editTextList;
+    }
+
+    private ShopInfo buildShopInfo(LatLng position){
+        ShopInfo si = new ShopInfo();
+        final EditText shopNameEdit = (EditText) findViewById(R.id.shopNameEdit);
+        final EditText shopAddressEdit = (EditText) findViewById(R.id.shopAddressEdit);
+        final EditText shopWebPageEdit = (EditText) findViewById(R.id.shopWebPageEdit);
+        final CheckBox shopActiveCheckBox = (CheckBox) findViewById(R.id.shopActiveCheckBox);
+
+        List<EditText> validations = new ArrayList<>();
+        List<EditText> dayInputs = getAllDaysInputs();
+        validations.add(shopNameEdit);
+        validations.addAll(dayInputs);
+
+        for (EditText et : validations){
+            if (!isTextValid(et)){
+                et.requestFocus();
+                return null;
+            }
+        }
+
+        si.setActive(shopActiveCheckBox.isChecked());
+
+        si.setAddress(shopAddressEdit.getText().toString());
+        si.setName(shopNameEdit.getText().toString());
+        si.setUrl(shopWebPageEdit.getText().toString());
+        si.setPosition(position);
+
+        OpeningHoursParser parser = new OpeningHoursParser();
+
+        int i = 0;
+        for (ShopInfo.DAYS day : ShopInfo.DAYS.values()){
+            try {
+                si.getOpeningHours().put(day.toString(), parser.fromString(dayInputs.get(i++).getText().toString()));
+            } catch (TimeSpanParseException e) {
+                e.printStackTrace();
+                dayInputs.get(i).requestFocus();
+                return null;
+            }
+        }
+        return si;
+    }
+
+    private boolean isTextValid(EditText et){
+        return !((TextInputLayout)et.getParent()).isErrorEnabled();
     }
 
     private void copyMondayToAllOthers(){

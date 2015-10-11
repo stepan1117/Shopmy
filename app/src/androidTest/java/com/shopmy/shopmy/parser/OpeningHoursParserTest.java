@@ -17,7 +17,7 @@ public class OpeningHoursParserTest extends TestCase {
     @SmallTest
     public void testParse() throws Exception{
         OpeningHoursParser parser = new OpeningHoursParser();
-        List<TimeSpan> timeSpans = parser.fromString("8:00 - 14:00, 15:30-19:00");
-        assertEquals(timeSpans.size(), 2);
+        List<TimeSpan> timeSpans = parser.fromString("8:00 - 14, 05:30-19:00,0500-1430");
+        assertEquals(timeSpans.size(), 3);
     }
 }

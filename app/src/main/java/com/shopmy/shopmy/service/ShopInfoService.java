@@ -2,6 +2,7 @@ package com.shopmy.shopmy.service;
 
 import com.shopmy.shopmy.model.ShopInfo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,4 +26,11 @@ public class ShopInfoService {
         return instance;
     }
 
+
+    public List<ShopInfo> getShopsForRange(){
+        return null;
+    }
+
 }
+
+
