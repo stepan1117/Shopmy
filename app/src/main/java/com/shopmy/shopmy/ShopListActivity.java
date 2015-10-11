@@ -43,8 +43,7 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
                return;
             }
         }
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        setUpLocationManager();
     }
 
 
@@ -65,24 +64,27 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
         mMap.setOnMarkerClickListener(this);
         mMap.setInfoWindowAdapter(new ShopInfoWindowAdapter(getLayoutInflater()));
 
-        try {
-            Location myLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(new Criteria(), true));
-            LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+        if (locationManager != null){
+            try {
+                Location myLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(new Criteria(), true));
+                if (myLocation != null) {
+                    LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
 
-            // Show the current location in Google Map
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                    // Show the current location in Google Map
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
-            // Zoom in the Google Map
-            googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-
-        } catch (SecurityException e){
-            return;
+                    // Zoom in the Google Map
+                    googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+                }
+            } catch (SecurityException e){
+            }
         }
     }
 
     private void locationChanged(Location location){
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
     }
 
     @Override
@@ -92,8 +94,24 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
                 return;
             }
         }
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        setUpLocationManager();
     }
+
+    private void setUpLocationManager(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+        }
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        String provider = locationManager.getBestProvider(criteria, true);
+        if (provider != null) {
+            locationManager.requestLocationUpdates(provider, 0, 0, locationListener);
+        }
+    }
+
 
     LocationListener locationListener = new LocationListener() {
 

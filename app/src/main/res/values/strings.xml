@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Shopmy</string>
-    <string name="title_activity_shop_list">Map</string>
-    <string name="title_activity_edit_shop">EditShopActivity</string>
+    <string name="title_activity_shop_list">Shops Map</string>
+    <string name="title_activity_edit_shop">Edit Shop</string>
     <string name="shop_name">Name</string>
     <string name="shop_address">Address</string>
     <string name="title_activity_login">Sign in</string>
@@ -31,6 +31,15 @@
     <string name="notes">Notes</string>
     <string name="menu_done">Done</string>
     <string name="menu_cancel">Cancel</string>
+    <string name="closed">Closed</string>
+    <string name="choose_shop_size">[Choose shop size...]</string>
+    <string name="openingHoursHint">Use ranges separated by comma, for example
+        <i>8:00-11:30, 12:30-17:00</i>. Leave blank for Closed.
+    </string>
+    <string name="error_shop_name_empty">Shop name cannot be empty</string>
+    <string name="question_copy_opening_hours">Do you want to use opening hours for Monday
+        for all other days, too? This will replace all existing values.
+    </string>
 
     <string-array name="shop_size_array">
         <item>Small (local grocery Store)</item>

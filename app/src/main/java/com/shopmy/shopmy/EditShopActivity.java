@@ -1,14 +1,29 @@
 package com.shopmy.shopmy;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Spinner;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+
+import com.shopmy.shopmy.adapter.NothingSelectedSpinnerAdapter;
+import com.shopmy.shopmy.validation.TextValidator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EditShopActivity extends AppCompatActivity {
 
@@ -16,7 +31,16 @@ public class EditShopActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_shop);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Button saveButton = (Button) findViewById(R.id.saveButton);
+        final ImageButton buttonUseForAllOtherDays =
+                (ImageButton) findViewById(R.id.buttonUseForAllOtherDays);
+
+        final EditText shopNameEdit = (EditText) findViewById(R.id.shopNameEdit);
+        final EditText shopAddressEdit = (EditText) findViewById(R.id.shopAddressEdit);
+
+
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -28,17 +52,105 @@ public class EditShopActivity extends AppCompatActivity {
             }
         });
 
-        final Button button = (Button) findViewById(R.id.saveButton);
-        button.setOnClickListener(new View.OnClickListener() {
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("position",getIntent().getParcelableExtra("position"));
-                returnIntent.putExtra("name",((EditText)findViewById(R.id.shopNameEdit)).getText().toString());
-                returnIntent.putExtra("address",((EditText)findViewById(R.id.shopAddressEdit)).getText().toString());
+                returnIntent.putExtra("position", getIntent().getParcelableExtra("position"));
+                returnIntent.putExtra("name", shopNameEdit.getText().toString());
+                returnIntent.putExtra("address", shopAddressEdit.getText().toString());
                 setResult(RESULT_OK, returnIntent);
                 finish();
             }
         });
+
+        final Button closeButton = (Button) findViewById(R.id.cancelButton);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setResult(RESULT_CANCELED);
+                finish();
+            }
+        });
+
+        buttonUseForAllOtherDays.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createAndShowAlertDialog();
+            }
+        });
+
+        Spinner spinner = (Spinner) findViewById(R.id.shopSizeSpinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.shop_size_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setPrompt("Select your favorite Planet!");
+
+        spinner.setAdapter(
+                new NothingSelectedSpinnerAdapter(
+                        adapter,
+                        R.layout.shop_size_spinner_row_nothing_selected,
+                        // R.layout.contact_spinner_nothing_selected_dropdown, // Optional
+                        this));
+
+
+        // Validation
+        shopNameEdit.addTextChangedListener(new TextValidator(shopNameEdit) {
+            @Override
+            public void validate(TextView textView, String text) {
+                if (TextUtils.isEmpty(text)) {
+                    textView.setError(getResources().getText(R.string.error_shop_name_empty));
+                } else {
+                    textView.setError(null);
+                }
+            }
+        });
+
+        for(EditText et : getAllDaysInputs()){
+            et.addTextChangedListener(new TextValidator(et) {
+                @Override
+                public void validate(TextView textView, String text) {
+
+                }
+            });
+        }
     }
+
+    private List<EditText> getAllDaysInputs(){
+        List<EditText> editTextList = new ArrayList<>();
+        TableLayout layout = (TableLayout)findViewById(R.id.openingHoursTableLayout);
+        for (int i = 0; i < layout.getChildCount(); i++){
+            TableRow row = (TableRow)layout.getChildAt(i);
+            editTextList.add((EditText) row.getChildAt(1));
+        }
+        return editTextList;
+    }
+
+    private void copyMondayToAllOthers(){
+        List<EditText> editTextList = getAllDaysInputs();
+        String monday = editTextList.get(0).getText().toString();
+        for (EditText et : editTextList){
+            et.setText(monday);
+        }
+    }
+
+    private void createAndShowAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getResources().getString(R.string.question_copy_opening_hours));
+        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                copyMondayToAllOthers();
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
 
 }

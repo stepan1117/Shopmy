@@ -17,7 +17,10 @@
         android:paddingBottom="50dp"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin">
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:layout_alignBottom="@+id/footer"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
         <RelativeLayout
             android:id="@+id/form_layout"
@@ -32,11 +35,24 @@
                 android:layout_alignParentTop="true"
                 android:orientation="vertical">
 
+                <CheckBox
+                    android:button="@null"
+                    android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
+                    android:id="@+id/shopActiveCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:checked="true"
+                    android:enabled="true"
+                    android:text="@string/shop_active" />
+
                 <EditText
                     android:id="@+id/shopNameEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/shop_name" />
+                    android:hint="@string/shop_name"
+                    android:maxLength="@integer/shop_name_max_length"
+                    android:inputType="text"/>
 
                 <EditText
                     android:id="@+id/shopAddressEdit"
@@ -55,24 +71,39 @@
                     android:inputType="textEmailAddress" />
 
                 <Spinner
-                    android:id="@+id/spinner"
+                    android:id="@+id/shopSizeSpinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:entries="@array/shop_size_array"
-                    android:focusable="true" />
+                    android:focusable="true"
+                    android:text="ahoj"/>
 
-                <CheckBox
-                    android:id="@+id/checkBox"
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:enabled="true"
-                    android:text="@string/shop_active" />
+                    android:text="Opening hours"
+                    android:paddingTop="@dimen/activity_horizontal_margin"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="2dip"
+                    android:background="@android:color/darker_gray"
+                    android:id="@+id/openingHoursDivider" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/openingHoursHint"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
 
                 <TableLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:stretchColumns="1">
+                    android:stretchColumns="1"
+                    android:id="@+id/openingHoursTableLayout"
+                    >
 
                     <TableRow
                         android:layout_width="wrap_content"
@@ -84,19 +115,21 @@
                             android:text="@string/monday"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                        <TextView
-                            android:id="@+id/openingHoursMondayView"
-                            android:layout_width="wrap_content"
+                        <EditText
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:id="@+id/openingHoursMondayEdit"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:text="Closed"
+                            android:hint="@string/closed"
+                            android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                        <Button
-                            android:id="@+id/buttonEditOpeningHoursMonday"
+                        <ImageButton
+                            android:id="@+id/buttonUseForAllOtherDays"
                             android:layout_width="wrap_content"
                             android:layout_height="@dimen/edit_hours_button_size"
-                            android:text="Edit" />
+                            android:src="@android:drawable/arrow_down_float" />
 
                     </TableRow>
 
@@ -110,19 +143,15 @@
                             android:text="@string/tuesday"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                        <TextView
-                            android:id="@+id/openingHoursTuesdayView"
-                            android:layout_width="wrap_content"
+                        <EditText
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:id="@+id/openingHoursTuesdayEdit"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:text="Closed"
+                            android:hint="@string/closed"
+                            android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                        <Button
-                            android:id="@+id/buttonEditOpeningHoursTuesday"
-                            android:layout_width="wrap_content"
-                            android:layout_height="@dimen/edit_hours_button_size"
-                            android:text="Edit" />
 
                     </TableRow>
 
@@ -136,19 +165,15 @@
                             android:text="@string/wednesday"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                        <TextView
-                            android:id="@+id/openingHoursWednesdayView"
-                            android:layout_width="wrap_content"
+                        <EditText
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:id="@+id/openingHoursWednesdayEdit"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:text="Closed"
+                            android:hint="@string/closed"
+                            android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                        <Button
-                            android:id="@+id/buttonEditOpeningHoursWednesday"
-                            android:layout_width="wrap_content"
-                            android:layout_height="@dimen/edit_hours_button_size"
-                            android:text="Edit" />
 
                     </TableRow>
 
@@ -162,19 +187,15 @@
                             android:text="@string/thursday"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                        <TextView
-                            android:id="@+id/openingHoursThursdayView"
-                            android:layout_width="wrap_content"
+                        <EditText
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:id="@+id/openingHoursThursdayEdit"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:text="Closed"
+                            android:hint="@string/closed"
+                            android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                        <Button
-                            android:id="@+id/buttonEditOpeningHoursThursday"
-                            android:layout_width="wrap_content"
-                            android:layout_height="@dimen/edit_hours_button_size"
-                            android:text="Edit" />
 
                     </TableRow>
 
@@ -188,19 +209,15 @@
                             android:text="@string/friday"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                        <TextView
-                            android:id="@+id/openingHoursFridayView"
-                            android:layout_width="wrap_content"
+                        <EditText
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:id="@+id/openingHoursFridayEdit"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:text="Closed"
+                            android:hint="@string/closed"
+                            android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                        <Button
-                            android:id="@+id/buttonEditOpeningHoursFriday"
-                            android:layout_width="wrap_content"
-                            android:layout_height="@dimen/edit_hours_button_size"
-                            android:text="Edit" />
 
                     </TableRow>
 
@@ -214,19 +231,15 @@
                             android:text="@string/saturday"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                        <TextView
-                            android:id="@+id/openingHoursSaturdayView"
-                            android:layout_width="wrap_content"
+                        <EditText
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:id="@+id/openingHoursSaturdayEdit"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:text="Closed"
+                            android:hint="@string/closed"
+                            android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                        <Button
-                            android:id="@+id/buttonEditOpeningHoursSaturay"
-                            android:layout_width="wrap_content"
-                            android:layout_height="@dimen/edit_hours_button_size"
-                            android:text="Edit" />
 
                     </TableRow>
 
@@ -240,19 +253,15 @@
                             android:text="@string/sunday"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                        <TextView
-                            android:id="@+id/openingHoursSundayView"
-                            android:layout_width="wrap_content"
+                        <EditText
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:id="@+id/openingHoursSundayEdit"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:text="Closed"
+                            android:hint="@string/closed"
+                            android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                        <Button
-                            android:id="@+id/buttonEditOpeningHoursSunday"
-                            android:layout_width="wrap_content"
-                            android:layout_height="@dimen/edit_hours_button_size"
-                            android:text="Edit" />
 
                     </TableRow>
 
@@ -266,32 +275,21 @@
                             android:text="@string/holidays"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                        <TextView
-                            android:id="@+id/openingHoursHolidaysView"
-                            android:layout_width="wrap_content"
+                        <EditText
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:id="@+id/openingHoursHolidaysEdit"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:text="Closed"
+                            android:hint="@string/closed"
+                            android:maxLength="@integer/opening_hours_max_length"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                        <Button
-                            android:id="@+id/buttonEditOpeningHoursHolidays"
-                            android:layout_width="wrap_content"
-                            android:layout_height="@dimen/edit_hours_button_size"
-                            android:text="Edit" />
 
                     </TableRow>
 
                 </TableLayout>
 
-                <!--<EditText-->
-                    <!--android:id="@+id/shopNotesEdit"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:ems="10"-->
-                    <!--android:hint="@string/notes"-->
-                    <!--android:inputType="textMultiLine" />-->
-            </LinearLayout>
+              </LinearLayout>
 
 
         </RelativeLayout>
