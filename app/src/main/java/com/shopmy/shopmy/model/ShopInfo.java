@@ -11,6 +11,7 @@ import java.util.List;
 /**
  * Created by stepan on 4. 10. 2015.
  */
+
 public class ShopInfo implements Parcelable{
     public enum DAYS {monday, tuesday, wednesday, thursday, friday, saturday, sunday, holidays};
 
@@ -108,5 +109,20 @@ public class ShopInfo implements Parcelable{
         dest.writeDouble(position.latitude);
         dest.writeDouble(position.longitude);
         dest.writeSerializable(openingHours);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ShopInfo shopInfo = (ShopInfo) o;
+
+        return position.equals(shopInfo.position);
+    }
+
+    @Override
+    public int hashCode() {
+        return position.hashCode();
     }
 }

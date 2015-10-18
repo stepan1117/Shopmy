@@ -27,6 +27,10 @@ public class ShopInfoService {
     }
 
 
+    public void persist(ShopInfo info){
+
+    }
+
     public List<ShopInfo> getShopsForRange(){
         return null;
     }

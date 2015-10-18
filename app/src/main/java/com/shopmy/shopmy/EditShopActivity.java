@@ -26,26 +26,46 @@ import com.shopmy.shopmy.adapter.NothingSelectedSpinnerAdapter;
 import com.shopmy.shopmy.exception.TimeSpanParseException;
 import com.shopmy.shopmy.model.OpeningHours;
 import com.shopmy.shopmy.model.ShopInfo;
+import com.shopmy.shopmy.model.TimeSpan;
 import com.shopmy.shopmy.parser.OpeningHoursParser;
 import com.shopmy.shopmy.validation.TextValidator;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.shopmy.shopmy.format.HourMinuteFormatter.formatTimeSpans;
+
 public class EditShopActivity extends AppCompatActivity {
+
+    private Toolbar toolbar;
+    private Button saveButton;
+    private Button closeButton;
+    private ImageButton buttonUseForAllOtherDays;
+    private EditText shopNameEdit;
+    private EditText shopAddressEdit;
+    private Spinner spinner;
+    private EditText shopWebPageEdit;
+    private CheckBox shopActiveCheckBox;
+    private TableLayout openingHoursTableLayout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_shop);
 
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        final Button saveButton = (Button) findViewById(R.id.saveButton);
-        final ImageButton buttonUseForAllOtherDays =
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        saveButton = (Button) findViewById(R.id.saveButton);
+        buttonUseForAllOtherDays =
                 (ImageButton) findViewById(R.id.buttonUseForAllOtherDays);
 
-        final EditText shopNameEdit = (EditText) findViewById(R.id.shopNameEdit);
-        final EditText shopAddressEdit = (EditText) findViewById(R.id.shopAddressEdit);
+        shopNameEdit = (EditText) findViewById(R.id.shopNameEdit);
+        shopAddressEdit = (EditText) findViewById(R.id.shopAddressEdit);
+        closeButton = (Button) findViewById(R.id.cancelButton);
+        spinner = (Spinner) findViewById(R.id.shopSizeSpinner);
+        shopWebPageEdit = (EditText) findViewById(R.id.shopWebPageEdit);
+        shopActiveCheckBox = (CheckBox) findViewById(R.id.shopActiveCheckBox);
+        openingHoursTableLayout = (TableLayout)findViewById(R.id.openingHoursTableLayout);
 
         setSupportActionBar(toolbar);
 
@@ -62,7 +82,15 @@ public class EditShopActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent returnIntent = new Intent();
 
-                ShopInfo si = buildShopInfo((LatLng)getIntent().getParcelableExtra("position"));
+                LatLng position;
+
+                if (getIntent().hasExtra("shopInfo")){
+                    position = ((ShopInfo)getIntent().getParcelableExtra("shopInfo")).getPosition();
+                } else {
+                    position = getIntent().getParcelableExtra("position");
+                }
+
+                ShopInfo si = buildShopInfo(position);
                 if (si == null){
                     return;
                 }
@@ -72,7 +100,6 @@ public class EditShopActivity extends AppCompatActivity {
             }
         });
 
-        final Button closeButton = (Button) findViewById(R.id.cancelButton);
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,7 +115,6 @@ public class EditShopActivity extends AppCompatActivity {
             }
         });
 
-        Spinner spinner = (Spinner) findViewById(R.id.shopSizeSpinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.shop_size_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setPrompt("Select your favorite Planet!");
@@ -100,6 +126,9 @@ public class EditShopActivity extends AppCompatActivity {
                         // R.layout.contact_spinner_nothing_selected_dropdown, // Optional
                         this));
 
+        if (getIntent().hasExtra("shopInfo")){
+            fillValuesFromShopInfo((ShopInfo)getIntent().getParcelableExtra("shopInfo"));
+        }
 
         // Validation
         shopNameEdit.addTextChangedListener(new TextValidator(shopNameEdit) {
@@ -134,20 +163,30 @@ public class EditShopActivity extends AppCompatActivity {
 
     private List<EditText> getAllDaysInputs(){
         List<EditText> editTextList = new ArrayList<>();
-        TableLayout layout = (TableLayout)findViewById(R.id.openingHoursTableLayout);
-        for (int i = 0; i < layout.getChildCount(); i++){
-            TableRow row = (TableRow)layout.getChildAt(i);
+        for (int i = 0; i < openingHoursTableLayout.getChildCount(); i++){
+            TableRow row = (TableRow)openingHoursTableLayout.getChildAt(i);
             editTextList.add((EditText) ((TextInputLayout)row.getChildAt(0)).getChildAt(0));
         }
         return editTextList;
     }
 
+    private void fillValuesFromShopInfo(ShopInfo shopInfo){
+        shopNameEdit.setText(shopInfo.getName());
+        shopAddressEdit.setText(shopInfo.getAddress());
+        shopWebPageEdit.setText(shopInfo.getUrl());
+        shopActiveCheckBox.setSelected(shopInfo.isActive());
+
+        List<EditText> allDaysInputs = getAllDaysInputs();
+        int index = 0;
+        for (ShopInfo.DAYS day : ShopInfo.DAYS.values()) {
+            List<TimeSpan> timeSpans = shopInfo.getOpeningHours().get(day.toString());
+            allDaysInputs.get(index).setText(formatTimeSpans(timeSpans));
+            index++;
+        }
+    }
+
     private ShopInfo buildShopInfo(LatLng position){
         ShopInfo si = new ShopInfo();
-        final EditText shopNameEdit = (EditText) findViewById(R.id.shopNameEdit);
-        final EditText shopAddressEdit = (EditText) findViewById(R.id.shopAddressEdit);
-        final EditText shopWebPageEdit = (EditText) findViewById(R.id.shopWebPageEdit);
-        final CheckBox shopActiveCheckBox = (CheckBox) findViewById(R.id.shopActiveCheckBox);
 
         List<EditText> validations = new ArrayList<>();
         List<EditText> dayInputs = getAllDaysInputs();
@@ -184,6 +223,7 @@ public class EditShopActivity extends AppCompatActivity {
     }
 
     private boolean isTextValid(EditText et){
+        et.setText(et.getText());
         return !((TextInputLayout)et.getParent()).isErrorEnabled();
     }
 

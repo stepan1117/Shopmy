@@ -8,6 +8,9 @@ import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
 
+import java.util.List;
+import java.util.StringTokenizer;
+
 /**
  * Created by stepan on 11. 10. 2015.
  */
@@ -30,6 +33,18 @@ public class HourMinuteFormatter {
                 formatLocalTime(interval.getEnd().toLocalTime());
     }
 
+    public static String formatTimeSpans(List<TimeSpan> spans){
+        if (spans == null || spans.isEmpty()){
+            return null;
+        }
 
+        String result = "";
+
+        for (TimeSpan span : spans){
+          result += formatTimeSpan(span) + ", ";
+        }
+
+        return result.substring(0, result.length() - 2);
+    }
 
 }

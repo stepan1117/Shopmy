@@ -11,6 +11,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,12 +28,17 @@ import com.shopmy.shopmy.model.TimeSpan;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ShopListActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerClickListener {
+public class ShopListActivity extends FragmentActivity implements OnMapReadyCallback,
+        GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerClickListener,
+        GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerDragListener {
 
     private GoogleMap mMap;
 
     private LocationManager locationManager;
+
+    private Map<Marker, ShopInfo> markers = new HashMap<>();
 
 
     @Override
@@ -45,8 +51,8 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
         mapFragment.getMapAsync(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-               requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-               return;
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                return;
             }
         }
         setUpLocationManager();
@@ -69,8 +75,10 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
         mMap.setOnMapLongClickListener(this);
         mMap.setOnMarkerClickListener(this);
         mMap.setInfoWindowAdapter(new ShopInfoWindowAdapter(getLayoutInflater()));
+        mMap.setOnInfoWindowClickListener(this);
+        mMap.setOnMarkerDragListener(this);
 
-        if (locationManager != null){
+        if (locationManager != null) {
             try {
                 Location myLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(new Criteria(), true));
                 if (myLocation != null) {
@@ -82,12 +90,12 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
                     // Zoom in the Google Map
                     googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
                 }
-            } catch (SecurityException e){
+            } catch (SecurityException e) {
             }
         }
     }
 
-    private void locationChanged(Location location){
+    private void locationChanged(Location location) {
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
@@ -103,7 +111,7 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
         setUpLocationManager();
     }
 
-    private void setUpLocationManager(){
+    private void setUpLocationManager() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
@@ -122,19 +130,23 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
     LocationListener locationListener = new LocationListener() {
 
         private boolean moved = false;
+
         public void onLocationChanged(Location location) {
             // Called when a new location is found by the network location provider.
-            if (!moved){
+            if (!moved) {
                 moved = true;
                 locationChanged(location);
             }
         }
 
-        public void onStatusChanged(String provider, int status, Bundle extras) {}
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
 
-        public void onProviderEnabled(String provider) {}
+        public void onProviderEnabled(String provider) {
+        }
 
-        public void onProviderDisabled(String provider) {}
+        public void onProviderDisabled(String provider) {
+        }
     };
 
 
@@ -148,7 +160,7 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
-        if (requestCode == 1) {
+        if (requestCode == 1 || requestCode == 2) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 ShopInfo si = data.getParcelableExtra("shopInfo");
@@ -156,32 +168,50 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
 
                 HashMap<String, List<TimeSpan>> openingHours = si.getOpeningHours();
 
-                for (ShopInfo.DAYS day : ShopInfo.DAYS.values()){
+                for (ShopInfo.DAYS day : ShopInfo.DAYS.values()) {
                     sb.append("<b>");
                     sb.append(getResources().getString(
-                                getResources()
-                                        .getIdentifier(
-                                                day.toString(), "string", this.getPackageName())));
+                            getResources()
+                                    .getIdentifier(
+                                            day.toString(), "string", this.getPackageName())));
                     sb.append("</b>: ");
                     List<TimeSpan> spans = openingHours.get(day.toString());
-                    if (spans == null || spans.isEmpty()){
+                    if (spans == null || spans.isEmpty()) {
                         sb.append(getResources().getString(R.string.closed));
                     } else {
-                        for (TimeSpan span : spans){
+                        for (TimeSpan span : spans) {
                             sb.append(HourMinuteFormatter.formatTimeSpan(span) + ", ");
                         }
                     }
                     sb.append("<br/>");
                 }
 
-                mMap.addMarker(new MarkerOptions()
-                        .position(si.getPosition())
-                        .title(si.getName())
-                        .snippet(sb.toString())
-                        .draggable(true)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.shopping_cart_24px)));
+                if (requestCode == 1) {
+                    Marker m = mMap.addMarker(new MarkerOptions()
+                            .position(si.getPosition())
+                            .title(si.getName())
+                            .snippet(sb.toString())
+                            .draggable(true)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.shopping_cart_24px)));
+                    markers.put(m, si);
+                    persist(si);
+                } else if (requestCode == 2) {
+                    Marker m = null;
+                    for (Map.Entry<Marker, ShopInfo> shop : markers.entrySet()) {
+                        if (shop.getValue().equals(si)) {
+                            m = shop.getKey();
+                            m.setTitle(si.getName());
+                            m.setSnippet(sb.toString());
+                            m.showInfoWindow();
+                            persist(si);
+                            break;
+                        }
+                    }
+                    markers.put(m, si);
+                }
             }
         }
+
     }
 
     @Override
@@ -194,5 +224,29 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
     }
 
 
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        ShopInfo si = markers.get(marker);
+        Intent intent = new Intent(this, EditShopActivity.class);
+        intent.putExtra("shopInfo", si);
+        startActivityForResult(intent, 2);
+    }
+
+    @Override
+    public void onMarkerDragStart(Marker marker) {}
+
+    @Override
+    public void onMarkerDrag(Marker marker) {}
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {
+        ShopInfo info = markers.get(marker);
+        info.setPosition(marker.getPosition());
+        persist(info);
+    }
+
+    private void persist(ShopInfo info){
+        Log.d(this.getClass().getName(), "About to persist info.");
+    }
 
 }
