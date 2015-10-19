@@ -15,6 +15,7 @@ import java.util.List;
 public class ShopInfo implements Parcelable{
     public enum DAYS {monday, tuesday, wednesday, thursday, friday, saturday, sunday, holidays};
 
+    private long id = -1;
     private String name;
     private String address;
     private String url;
@@ -28,6 +29,7 @@ public class ShopInfo implements Parcelable{
     }
 
     protected ShopInfo(Parcel in) {
+        id = in.readLong();
         name = in.readString();
         address = in.readString();
         url = in.readString();
@@ -36,6 +38,14 @@ public class ShopInfo implements Parcelable{
         double longitude = in.readDouble();
         position = new LatLng(latitude, longitude);
         openingHours = (HashMap<String, List<TimeSpan>>)in.readSerializable();
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public LatLng getPosition() {
@@ -102,6 +112,7 @@ public class ShopInfo implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
         dest.writeString(name);
         dest.writeString(address);
         dest.writeString(url);

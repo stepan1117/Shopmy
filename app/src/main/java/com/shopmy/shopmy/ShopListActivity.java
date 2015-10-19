@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.shopmy.shopmy.adapter.ShopInfoWindowAdapter;
+import com.shopmy.shopmy.db.PersistToDbTask;
 import com.shopmy.shopmy.format.HourMinuteFormatter;
 import com.shopmy.shopmy.model.ShopInfo;
 import com.shopmy.shopmy.model.TimeSpan;
@@ -247,6 +248,7 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
 
     private void persist(ShopInfo info){
         Log.d(this.getClass().getName(), "About to persist info.");
+        new PersistToDbTask().execute(info);
     }
 
 }
