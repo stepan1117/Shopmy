@@ -10,6 +10,8 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -159,6 +161,13 @@ public class EditShopActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, 0, 0, "Remove").setIcon(R.drawable.ic_delete_black_24px)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        return true;
     }
 
     private List<EditText> getAllDaysInputs(){
