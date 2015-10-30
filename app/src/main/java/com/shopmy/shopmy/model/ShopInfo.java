@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.clustering.ClusterItem;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
  * Created by stepan on 4. 10. 2015.
  */
 
-public class ShopInfo implements Parcelable{
+public class ShopInfo implements Parcelable, ClusterItem{
     public enum DAYS {monday, tuesday, wednesday, thursday, friday, saturday, sunday, holidays};
 
     private long id = -1;
@@ -129,11 +130,12 @@ public class ShopInfo implements Parcelable{
 
         ShopInfo shopInfo = (ShopInfo) o;
 
-        return position.equals(shopInfo.position);
+        return id == shopInfo.id;
+
     }
 
     @Override
     public int hashCode() {
-        return position.hashCode();
+        return (int) (id ^ (id >>> 32));
     }
 }

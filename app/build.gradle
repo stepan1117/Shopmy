@@ -32,4 +32,6 @@ dependencies {
     compile 'net.danlew:android.joda:2.8.2'
     compile 'org.sqldroid:sqldroid:1.0.3'
     compile 'org.flywaydb:flyway-core:3.2.1'
+    compile 'com.caverock:androidsvg:1.2.1'
+    compile 'com.google.maps.android:android-maps-utils:0.4+'
 }

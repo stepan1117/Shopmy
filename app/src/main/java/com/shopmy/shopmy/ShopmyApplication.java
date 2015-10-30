@@ -14,10 +14,13 @@ import org.flywaydb.core.api.android.ContextHolder;
  */
 public class ShopmyApplication extends Application {
     private static String connectionString;
+    public static ShopmyApplication instance;
+
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         JodaTimeAndroid.init(this);
 
         SQLiteDatabase db = openOrCreateDatabase("shops", 0, null);
@@ -25,10 +28,15 @@ public class ShopmyApplication extends Application {
         Flyway flyway = new Flyway();
         connectionString = "jdbc:sqlite:" + db.getPath();
         flyway.setDataSource(connectionString, "", "");
-        flyway.clean();
+        // flyway.clean();
         flyway.setBaselineOnMigrate(true);
         flyway.migrate();
         db.close();
+    }
+
+
+    public static ShopmyApplication getInstance(){
+        return instance;
     }
 
     public static String getConnectionString(){

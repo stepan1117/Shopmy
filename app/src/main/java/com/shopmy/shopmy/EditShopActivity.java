@@ -4,8 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -26,7 +24,6 @@ import android.widget.TextView;
 import com.google.android.gms.maps.model.LatLng;
 import com.shopmy.shopmy.adapter.NothingSelectedSpinnerAdapter;
 import com.shopmy.shopmy.exception.TimeSpanParseException;
-import com.shopmy.shopmy.model.OpeningHours;
 import com.shopmy.shopmy.model.ShopInfo;
 import com.shopmy.shopmy.model.TimeSpan;
 import com.shopmy.shopmy.parser.OpeningHoursParser;
@@ -90,6 +87,7 @@ public class EditShopActivity extends AppCompatActivity {
                     position = ((ShopInfo)getIntent().getParcelableExtra("shopInfo")).getPosition();
                 } else {
                     position = getIntent().getParcelableExtra("position");
+                    toolbar.setTitle(R.string.add_new_shop);
                 }
 
                 ShopInfo si = buildShopInfo(position);
@@ -113,7 +111,7 @@ public class EditShopActivity extends AppCompatActivity {
         buttonUseForAllOtherDays.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createAndShowAlertDialog();
+                createAndShowCopyDaysDialog();
             }
         });
 
@@ -165,9 +163,23 @@ public class EditShopActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, 0, 0, "Remove").setIcon(R.drawable.ic_delete_black_24px)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+    if (getIntent().hasExtra("shopInfo")) {
+            menu
+                    .add(0, 0, 0, "Remove")
+                    .setIcon(R.drawable.ic_delete_white_48dp)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        }
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case 0:
+                createAndShowDeleteDialog();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private List<EditText> getAllDaysInputs(){
@@ -244,7 +256,7 @@ public class EditShopActivity extends AppCompatActivity {
         }
     }
 
-    private void createAndShowAlertDialog() {
+    private void createAndShowCopyDaysDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getResources().getString(R.string.question_copy_opening_hours));
         builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
@@ -262,6 +274,25 @@ public class EditShopActivity extends AppCompatActivity {
         dialog.show();
     }
 
-
-
+    private void createAndShowDeleteDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getResources().getString(R.string.question_delete_shop));
+        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+                Intent returnIntent = new Intent();
+                ShopInfo si = getIntent().getParcelableExtra("shopInfo");
+                returnIntent.putExtra("shopInfo",si);
+                setResult(ShopListActivity.RESULT_DELETE,returnIntent);
+                finish();
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 }
