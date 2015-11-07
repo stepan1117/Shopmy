@@ -1,0 +1,15 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:key="pref_static_field_key"
+        android:selectable="false"
+        android:persistent="false"
+        android:title=""
+        android:summary="@string/pref_text_application_version"/>
+    <!-- This preference will send an emial when selected. -->
+    <Preference
+        android:key="pref_send_feedback"
+        android:title="@string/pref_title_send_feedback">
+    </Preference>
+
+</PreferenceScreen>

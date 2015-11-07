@@ -5,17 +5,11 @@ import android.util.Log;
 
 import com.shopmy.shopmy.ShopmyApplication;
 import com.shopmy.shopmy.model.ShopInfo;
-import com.shopmy.shopmy.model.TimeSpan;
-
-import org.joda.time.DateTimeFieldType;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
 
 /**
  * Created by stepan on 30. 10. 2015.
@@ -41,13 +35,18 @@ public class DeleteFromDbTask extends AsyncTask<ShopInfo, Void, Long> {
             if (con != null){
                 try {
                     con.rollback();
-                    con.setAutoCommit(true);
-                    con.close();
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                 }
             }
             return null;
+        } finally {
+            try {
+                con.setAutoCommit(true);
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -10,9 +10,7 @@ import org.joda.time.IllegalFieldValueException;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
 import org.joda.time.LocalTime;
-import org.joda.time.TimeOfDay;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -111,6 +109,4 @@ public class OpeningHoursParser {
 
         return spans;
     }
-
-
 }

@@ -1,38 +1,39 @@
 package com.shopmy.shopmy.service;
 
 import com.shopmy.shopmy.model.ShopInfo;
+import com.shopmy.shopmy.model.TimeSpan;
+
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.joda.time.LocalDate;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by stepan on 4. 10. 2015.
  */
 public class ShopInfoService {
-    private ShopInfoService instance;
-    private Map<String, ShopInfo> shopInfoMap;
+    public enum ShopStatus {OPEN, CLOSING_SOON, CLOSED};
 
-    /**
-     * Private constructor
-     */
-    private ShopInfoService(){
 
-    }
-
-    public ShopInfoService getInstance(){
-        if (instance == null){
-            instance = new ShopInfoService();
+    public static ShopStatus decideShopStatus(ShopInfo info){
+        LocalDate now = new LocalDate();
+        ShopInfo.DAYS day = ShopInfo.DAYS.values()[now.getDayOfWeek() - 1];
+        List<TimeSpan> hours = info.getOpeningHours().get(day.toString());
+        if (hours != null){
+            for (TimeSpan span : hours){
+                Interval interval = new Interval(span.getStart().toDateTimeToday(), span.getEnd().toDateTimeToday());
+                if (interval.containsNow()){
+                    if (interval.getEnd().isAfter(new DateTime().plusMinutes(15))){
+                        return ShopStatus.OPEN;
+                    } else {
+                        return ShopStatus.CLOSING_SOON;
+                    }
+                }
+            }
         }
-        return instance;
-    }
 
-
-    public void persist(ShopInfo info){
-
-    }
-
-    public List<ShopInfo> getShopsForRange(){
-        return null;
+        return ShopStatus.CLOSED;
     }
 
 }

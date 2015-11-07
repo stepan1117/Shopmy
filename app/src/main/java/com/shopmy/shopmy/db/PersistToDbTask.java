@@ -4,8 +4,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.shopmy.shopmy.ShopmyApplication;
-import com.shopmy.shopmy.format.HourMinuteFormatter;
-import com.shopmy.shopmy.model.OpeningHours;
 import com.shopmy.shopmy.model.ShopInfo;
 import com.shopmy.shopmy.model.TimeSpan;
 
@@ -18,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by stepan on 18. 10. 2015.
@@ -42,7 +41,6 @@ public class PersistToDbTask extends AsyncTask<ShopInfo, Void, Long> {
             }
 
             con.commit();
-            con.setAutoCommit(true);
             shopInfo.setId(shopId);
             return shopId;
         } catch (Exception e) {
@@ -50,13 +48,18 @@ public class PersistToDbTask extends AsyncTask<ShopInfo, Void, Long> {
             if (con != null){
                 try {
                     con.rollback();
-                    con.setAutoCommit(true);
-                    con.close();
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                 }
             }
             return null;
+        } finally {
+            try {
+                con.setAutoCommit(true);
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
 
     }
@@ -84,19 +87,18 @@ public class PersistToDbTask extends AsyncTask<ShopInfo, Void, Long> {
                 "INSERT INTO OPENING_HOURS (SHOP_ID, DAY, MINUTES_FROM, MINUTES_TO) " +
                         " VALUES (?,?,?,?)");
 
-        int i = 0;
-        for (List<TimeSpan> spans : shopInfo.getOpeningHours().values()) {
-            if (spans != null){
-                for (TimeSpan span : spans) {
+        for (Map.Entry<String, List<TimeSpan>> entry : shopInfo.getOpeningHours().entrySet()){
+            if (entry.getValue() != null){
+                for (TimeSpan span : entry.getValue()) {
                     pst.setLong(1, shopInfo.getId());
-                    pst.setString(2, ShopInfo.DAYS.values()[i].toString());
+                    pst.setString(2, entry.getKey());
                     pst.setInt(3, span.getStart().get(DateTimeFieldType.minuteOfDay()));
                     pst.setInt(4, span.getEnd().get(DateTimeFieldType.minuteOfDay()));
                     pst.executeUpdate();
                 }
             }
-            i++;
         }
+
         pst.close();
     }
 

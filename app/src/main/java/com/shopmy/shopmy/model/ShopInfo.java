@@ -138,4 +138,7 @@ public class ShopInfo implements Parcelable, ClusterItem{
     public int hashCode() {
         return (int) (id ^ (id >>> 32));
     }
+
+
+
 }

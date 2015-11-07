@@ -11,18 +11,15 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.shopmy.shopmy.adapter.NothingSelectedSpinnerAdapter;
 import com.shopmy.shopmy.exception.TimeSpanParseException;
 import com.shopmy.shopmy.model.ShopInfo;
 import com.shopmy.shopmy.model.TimeSpan;
@@ -42,7 +39,7 @@ public class EditShopActivity extends AppCompatActivity {
     private ImageButton buttonUseForAllOtherDays;
     private EditText shopNameEdit;
     private EditText shopAddressEdit;
-    private Spinner spinner;
+//    private Spinner spinner;
     private EditText shopWebPageEdit;
     private CheckBox shopActiveCheckBox;
     private TableLayout openingHoursTableLayout;
@@ -61,7 +58,7 @@ public class EditShopActivity extends AppCompatActivity {
         shopNameEdit = (EditText) findViewById(R.id.shopNameEdit);
         shopAddressEdit = (EditText) findViewById(R.id.shopAddressEdit);
         closeButton = (Button) findViewById(R.id.cancelButton);
-        spinner = (Spinner) findViewById(R.id.shopSizeSpinner);
+//        spinner = (Spinner) findViewById(R.id.shopSizeSpinner);
         shopWebPageEdit = (EditText) findViewById(R.id.shopWebPageEdit);
         shopActiveCheckBox = (CheckBox) findViewById(R.id.shopActiveCheckBox);
         openingHoursTableLayout = (TableLayout)findViewById(R.id.openingHoursTableLayout);
@@ -94,6 +91,9 @@ public class EditShopActivity extends AppCompatActivity {
                 if (si == null){
                     return;
                 }
+                if (getIntent().hasExtra("shopInfo")){
+                    si.setId(((ShopInfo)getIntent().getParcelableExtra("shopInfo")).getId());
+                }
                 returnIntent.putExtra("shopInfo", si);
                 setResult(RESULT_OK, returnIntent);
                 finish();
@@ -115,16 +115,16 @@ public class EditShopActivity extends AppCompatActivity {
             }
         });
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.shop_size_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setPrompt("Select your favorite Planet!");
-
-        spinner.setAdapter(
-                new NothingSelectedSpinnerAdapter(
-                        adapter,
-                        R.layout.shop_size_spinner_row_nothing_selected,
-                        // R.layout.contact_spinner_nothing_selected_dropdown, // Optional
-                        this));
+//        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.shop_size_array, android.R.layout.simple_spinner_item);
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        spinner.setPrompt("Select your favorite Planet!");
+//
+//        spinner.setAdapter(
+//                new NothingSelectedSpinnerAdapter(
+//                        adapter,
+//                        R.layout.shop_size_spinner_row_nothing_selected,
+//                        // R.layout.contact_spinner_nothing_selected_dropdown, // Optional
+//                        this));
 
         if (getIntent().hasExtra("shopInfo")){
             fillValuesFromShopInfo((ShopInfo)getIntent().getParcelableExtra("shopInfo"));
@@ -166,7 +166,7 @@ public class EditShopActivity extends AppCompatActivity {
     if (getIntent().hasExtra("shopInfo")) {
             menu
                     .add(0, 0, 0, "Remove")
-                    .setIcon(R.drawable.ic_delete_white_48dp)
+                    .setIcon(R.drawable.ic_delete_white_24dp)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
         return true;

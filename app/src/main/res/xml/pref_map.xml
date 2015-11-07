@@ -1,0 +1,35 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:key="enable_shops_clustering"
+        android:title="@string/pref_title_enable_shops_clustering"
+        android:summaryOn="@string/pref_description_shops_clustering_enabled"
+        android:summaryOff="@string/pref_description_shops_clustering_disabled"
+        android:defaultValue="true" />
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+    <EditTextPreference
+        android:key="minimum_cluster_size"
+        android:title="@string/pref_title_minimum_cluster_size"
+        android:summary="@string/pref_description_minimum_cluster_size"
+        android:defaultValue="5"
+        android:selectAllOnFocus="true"
+        android:inputType="number"
+        android:singleLine="true"
+        android:maxLines="1" />
+
+    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
+         dismiss it. -->
+    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
+    <ListPreference
+        android:key="closing_soon_list"
+        android:title="@string/pref_title_closing_soon"
+        android:summary="@string/pref_description_closing_soon"
+        android:defaultValue="15"
+        android:entries="@array/pref_closing_soon_values"
+        android:entryValues="@array/pref_closing_soon_values"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null" />
+
+</PreferenceScreen>

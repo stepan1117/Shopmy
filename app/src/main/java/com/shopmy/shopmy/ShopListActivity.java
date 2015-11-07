@@ -9,43 +9,47 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.algo.Algorithm;
 import com.google.maps.android.clustering.algo.PreCachingAlgorithmDecorator;
 import com.google.maps.android.clustering.view.ClusterRenderer;
-import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.shopmy.shopmy.adapter.ShopInfoWindowAdapter;
 import com.shopmy.shopmy.db.DeleteFromDbTask;
 import com.shopmy.shopmy.db.LoadFromDbTask;
 import com.shopmy.shopmy.db.PersistToDbTask;
-import com.shopmy.shopmy.format.HourMinuteFormatter;
+import com.shopmy.shopmy.maps.ShopInfoWrapper;
 import com.shopmy.shopmy.maps.algo.NonHierarchicalDistanceBasedShopItemAlgorithm;
 import com.shopmy.shopmy.maps.renderer.ShopClusterRenderer;
 import com.shopmy.shopmy.model.ShopInfo;
-import com.shopmy.shopmy.model.TimeSpan;
+
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ShopListActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerClickListener,
-        GoogleMap.OnCameraChangeListener,
-        GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerDragListener {
+        GoogleMap.OnMarkerDragListener,
+        ClusterManager.OnClusterItemInfoWindowClickListener<ShopInfoWrapper>,
+        Toolbar.OnMenuItemClickListener {
 
     private ShopClusterManager mClusterManager;
 
@@ -55,10 +59,18 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
 
     public static final int RESULT_DELETE = -2;
 
+    private Timer timer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shop_list);
+
+        Toolbar t = (Toolbar)findViewById(R.id.map_toolbar);
+        t.setTitle(R.string.shops_map);
+        t.inflateMenu(R.menu.map_menu);
+        t.setOnMenuItemClickListener(this);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -72,6 +84,11 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
         setUpLocationManager();
     }
 
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.map_menu, menu);
+//        return super.onCreateOptionsMenu(menu);
+//    }
 
     /**
      * Manipulates the map once available.
@@ -89,12 +106,14 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
 
         mMap.setMyLocationEnabled(true);
         mMap.setOnMapLongClickListener(this);
-        mMap.setOnMarkerClickListener(this);
-        mMap.setOnInfoWindowClickListener(this);
         mMap.setOnMarkerDragListener(this);
         mMap.setInfoWindowAdapter(mClusterManager.getMarkerManager());
-        mClusterManager.getMarkerCollection().setOnInfoWindowAdapter(new ShopInfoWindowAdapter(getLayoutInflater(), mClusterManager));
-        mClusterManager.getMarkerCollection().setOnInfoWindowClickListener(this);
+        mMap.setOnMarkerClickListener(mClusterManager);
+        mMap.setOnInfoWindowClickListener(mClusterManager);
+
+        mClusterManager.getMarkerCollection().setOnInfoWindowAdapter(new ShopInfoWindowAdapter(getLayoutInflater()));
+//        mClusterManager.getMarkerCollection().setOnInfoWindowClickListener(this);
+        mClusterManager.setOnClusterItemInfoWindowClickListener(this);
 
         mMap.setOnCameraChangeListener(mClusterManager);
 
@@ -113,6 +132,38 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
             } catch (SecurityException e) {
             }
         }
+
+        refreshFromDb();
+        scheduleStatusUpdates();
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        try {
+            locationManager.removeUpdates(locationListener);
+            timer.cancel();
+        } catch (SecurityException se){
+            ;
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        String provider = locationManager.getBestProvider(criteria, true);
+        if (provider != null) {
+            try {
+                locationManager.requestLocationUpdates(provider, 0, 0, locationListener);
+            } catch (SecurityException se){
+                se.printStackTrace();
+            }
+        }
+        scheduleStatusUpdates();
     }
 
     private void locationChanged(Location location) {
@@ -144,6 +195,16 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
         if (provider != null) {
             locationManager.requestLocationUpdates(provider, 0, 0, locationListener);
         }
+    }
+
+    private void scheduleStatusUpdates(){
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                refreshStatuses();
+            }
+        }, DateTime.now().withSecondOfMinute(1).plusMinutes(1).toDate(), 1000*60);
     }
 
 
@@ -186,12 +247,11 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
                 ShopInfo si = data.getParcelableExtra("shopInfo");
 
                 if (requestCode == 1) {
-                    mClusterManager.addItem(si);
                     persist(si);
+                    refreshFromDb();
                 } else if (requestCode == 2) {
-                    mClusterManager.removeItem(si);
-                    mClusterManager.addItem(si);
                     persist(si);
+                    refreshFromDb();
                 }
             } else if (resultCode == RESULT_DELETE) {
                 ShopInfo si = data.getParcelableExtra("shopInfo");
@@ -216,9 +276,9 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
 
     @Override
     public void onMarkerDragEnd(Marker marker) {
-        ShopInfo info = mClusterManager.markerToInfo(marker);
-        info.setPosition(marker.getPosition());
-        persist(info);
+//        ShopInfo info = mClusterManager.markerToInfo(marker);
+//        info.setPosition(marker.getPosition());
+//        persist(info);
     }
 
     private void delete(final ShopInfo info) {
@@ -226,8 +286,7 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
         DeleteFromDbTask task = new DeleteFromDbTask() {
             @Override
             protected void onPostExecute(Long shopId) {
-                mClusterManager.removeItem(info);
-                mClusterManager.cluster();
+                refreshFromDb();
             }
         };
         task.execute(info);
@@ -239,97 +298,162 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
         new PersistToDbTask(){
             @Override
             protected void onPostExecute(Long aLong) {
-                mClusterManager.cluster();
+                refreshFromDb();
             }
         }.execute(info);
     }
 
+    private void refreshStatuses(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (ShopInfoWrapper info : mClusterManager.getItems()){
+                    ShopClusterRenderer renderer = ((ShopClusterRenderer)mClusterManager.renderer);
+                    Marker m = renderer.getMarker(info);
+                    if (m != null){
+                        m.setIcon(renderer.getShopStatusIcon(info));
+                    }
+                }
+            }
+        });
+    }
+
+    private void refreshFromDb(){
+        LoadFromDbTask task = new LoadFromDbTask() {
+            @Override
+            protected void onPostExecute(List<ShopInfo> shops) {
+                updateDisplayedShops(shops);
+                mClusterManager.cluster();
+            }
+        };
+        task.execute((LatLngBounds)null);
+    }
 
     private void updateDisplayedShops(List<ShopInfo> shops) {
 
-        List<ShopInfo> toBeRemoved = new ArrayList<>();
-        for (ShopInfo si : mClusterManager.getItems()) {
-            if (!shops.contains(si)) {
+        List<ShopInfoWrapper> wrappers = new ArrayList<>();
+        for (ShopInfo si : shops){
+            wrappers.add(new ShopInfoWrapper(si));
+        }
+
+//        ShopClusterRenderer renderer = ((ShopClusterRenderer)mClusterManager.renderer);
+//        for (ShopInfo shop : shops){
+//            Marker m = renderer.getMarker(shop);
+//            if (m == null)
+//                continue;
+//
+//            renderer.getClusterItem(m).getOpeningHours().clear();
+//            renderer.getClusterItem(m).getOpeningHours().putAll(shop.getOpeningHours());
+//            renderer.getClusterItem(m).setName(shop.getName());
+//            renderer.getClusterItem(m).setAddress(shop.getAddress());
+//            renderer.getClusterItem(m).setUrl(shop.getUrl());
+//            renderer.getClusterItem(m).setActive(shop.isActive());
+//            renderer.getClusterItem(m).setPosition(shop.getPosition());
+//
+//        }
+//        mClusterManager.addItems(shops);
+//        mClusterManager.cluster();
+
+        List<ShopInfoWrapper> toBeRemoved = new ArrayList<>();
+        for (ShopInfoWrapper si : mClusterManager.getItems()) {
+            if (!wrappers.contains(si)) {
                 toBeRemoved.add(si);
             } else {
                 shops.remove(si);
             }
         }
 
-        for (ShopInfo si : toBeRemoved) {
+        for (ShopInfoWrapper si : toBeRemoved) {
             mClusterManager.removeItem(si);
         }
 
-        for (ShopInfo shop : shops) {
+        for (ShopInfoWrapper shop : wrappers) {
             mClusterManager.addItem(shop);
         }
 
     }
 
-    @Override
-    public void onCameraChange(final CameraPosition cameraPosition) {
-        LoadFromDbTask task = new LoadFromDbTask() {
-            @Override
-            protected void onPostExecute(List<ShopInfo> shops) {
-                updateDisplayedShops(shops);
-                mClusterManager.onCameraChange(cameraPosition);
+//    @Override
+//    public void onCameraChange(final CameraPosition cameraPosition) {
+//        LoadFromDbTask task = new LoadFromDbTask() {
+//            @Override
+//            protected void onPostExecute(List<ShopInfo> shops) {
+//                updateDisplayedShops(shops);
+//                mClusterManager.onCameraChange(cameraPosition);
+//
+//            }
+//        };
+//        task.execute(mMap.getProjection().getVisibleRegion().latLngBounds);
+//    }
 
-            }
-        };
-        task.execute(mMap.getProjection().getVisibleRegion().latLngBounds);
-    }
 
     @Override
-    public void onInfoWindowClick(Marker marker) {
-        ShopInfo info = mClusterManager.markerToInfo(marker);
+    public void onClusterItemInfoWindowClick(ShopInfoWrapper info) {
         Intent intent = new Intent(this, EditShopActivity.class);
-        intent.putExtra("shopInfo", info);
+        intent.putExtra("shopInfo", info.getInfo());
         startActivityForResult(intent, 2);
     }
 
-    public class ShopClusterManager extends ClusterManager<ShopInfo> {
-        private Algorithm<ShopInfo> algorithm;
-        private ClusterRenderer<ShopInfo> renderer;
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_search:
+                Toast.makeText(getApplicationContext(), "Tady bude hledani", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.action_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
+        }
+        return false;
+    }
+
+    public class ShopClusterManager extends ClusterManager<ShopInfoWrapper> {
+        public Algorithm<ShopInfoWrapper> algorithm;
+        public ClusterRenderer<ShopInfoWrapper> renderer;
 
         public ShopClusterManager(Context context, GoogleMap map) {
             super(context, map);
             renderer = new ShopClusterRenderer(context, map, this);
-            algorithm = new PreCachingAlgorithmDecorator<>(new NonHierarchicalDistanceBasedShopItemAlgorithm<ShopInfo>());
+            algorithm = new PreCachingAlgorithmDecorator<>(new NonHierarchicalDistanceBasedShopItemAlgorithm<ShopInfoWrapper>());
+//            algorithm = new PreCachingAlgorithmDecorator<>(new GridBasedAlgorithm<ShopInfo>());
 
             setRenderer(renderer);
             setAlgorithm(algorithm);
         }
 
         @Override
-        public void setRenderer(ClusterRenderer<ShopInfo> view) {
+        public void setRenderer(ClusterRenderer<ShopInfoWrapper> view) {
             this.renderer = view;
+
             super.setRenderer(view);
         }
 
-        public ShopInfo markerToInfo(Marker m) {
-            if (renderer instanceof DefaultClusterRenderer) {
-                return (ShopInfo) ((DefaultClusterRenderer) renderer).getClusterItem(m);
-            } else {
-                return null;
-            }
-        }
+//        public ShopInfo markerToInfo(Marker m) {
+//            if (renderer instanceof DefaultClusterRenderer) {
+//                return (ShopInfo) ((DefaultClusterRenderer) renderer).getClusterItem(m);
+//            } else {
+//                return null;
+//            }
+//        }
 
-        public Collection<ShopInfo> getItems() {
+        public Collection<ShopInfoWrapper> getItems(){
             return algorithm.getItems();
         }
 
         @Override
         public void onCameraChange(final CameraPosition cameraPosition) {
+            ShopClusterManager.super.onCameraChange(cameraPosition);
 
-            LoadFromDbTask task = new LoadFromDbTask() {
-                @Override
-                protected void onPostExecute(List<ShopInfo> shops) {
-                    updateDisplayedShops(shops);
-                    cluster();
+//            LoadFromDbTask task = new LoadFromDbTask() {
+//                @Override
+//                protected void onPostExecute(List<ShopInfo> shops) {
+//                    updateDisplayedShops(shops);
+//                    cluster();
 //                    ShopClusterManager.super.onCameraChange(cameraPosition);
-                }
-            };
-            task.execute(mMap.getProjection().getVisibleRegion().latLngBounds);
+//                }
+//            };
+//            task.execute(mMap.getProjection().getVisibleRegion().latLngBounds);
 
         }
     }
