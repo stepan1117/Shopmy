@@ -3,12 +3,12 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="com.shopmy.shopmy.SettingsActivity$MapPreferenceFragment"
+        android:fragment="com.shoppinmate.android.SettingsActivity$MapPreferenceFragment"
         android:title="@string/pref_header_map"
         android:icon="@drawable/ic_map_black_24dp"/>
 
     <header
-        android:fragment="com.shopmy.shopmy.SettingsActivity$AboutPreferenceFragment"
+        android:fragment="com.shoppinmate.android.SettingsActivity$AboutPreferenceFragment"
         android:title="@string/pref_header_about"
         android:icon="@drawable/ic_info_black_24dp"/>
 

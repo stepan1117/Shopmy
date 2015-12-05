@@ -1,4 +1,4 @@
-package com.shopmy.shopmy;
+package com.android;
 
 import org.junit.Test;
 

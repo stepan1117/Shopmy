@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Honeyguide</string>
-    <string name="title_activity_shop_list">Shops Map</string>
+    <string name="app_name">ShopPin Mate</string>
+    <string name="title_activity_shop_list">Shoppin Mate</string>
     <string name="title_activity_edit_shop">Edit Shop</string>
     <string name="shop_name">Name</string>
     <string name="shop_address">Address</string>
@@ -32,7 +32,7 @@
     <string name="menu_done">Done</string>
     <string name="menu_cancel">Cancel</string>
     <string name="closed">Closed</string>
-    <string name="choose_shop_size">[Choose shop size...]</string>
+    <string name="choose_shop_size">[Choose shop size…]</string>
     <string name="openingHoursHint">Use ranges separated by comma, for example
         <i>8:00-11:30, 12:30-17:00</i>. Leave blank for Closed.
     </string>
@@ -69,7 +69,7 @@
     <string name="pref_header_about">About</string>
     <string name="pref_header_map">Map</string>
     <string name="pref_title_send_feedback">Send feedback</string>
-    <string name="pref_text_application_version">Application version 0.01.\nStepan Rezek, 2015.</string>
+    <string name="pref_text_application_version">ShopPin Mate version 0.01.\nStepan Rezek, 2015.</string>
     <string name="feedback_mail_subject">Application Feedback</string>
     <string name="feedback_mail_body">I would like to give you a feedback about the application:</string>
     <string name="choose_mail_client">Select email application</string>
