@@ -5,6 +5,7 @@
         android:selectable="false"
         android:persistent="false"
         android:title=""
+        android:icon="@drawable/shoppinmate"
         android:summary="@string/pref_text_application_version"/>
     <!-- This preference will send an emial when selected. -->
     <Preference

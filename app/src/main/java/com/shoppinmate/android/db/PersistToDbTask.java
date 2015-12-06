@@ -130,19 +130,18 @@ public class PersistToDbTask extends AsyncTask<ShopInfo, Void, Long> {
                 "INSERT INTO OPENING_HOURS (SHOP_ID, DAY, MINUTES_FROM, MINUTES_TO) " +
                         " VALUES (?,?,?,?)");
 
-        int i = 0;
-        for (List<TimeSpan> spans : shopInfo.getOpeningHours().values()) {
-            if (spans != null){
-                for (TimeSpan span : spans) {
+        for (Map.Entry<String, List<TimeSpan>> entry : shopInfo.getOpeningHours().entrySet()){
+            if (entry.getValue() != null){
+                for (TimeSpan span : entry.getValue()) {
                     pst.setLong(1, shopId);
-                    pst.setString(2, ShopInfo.DAYS.values()[i].toString());
+                    pst.setString(2, entry.getKey());
                     pst.setInt(3, span.getStart().get(DateTimeFieldType.minuteOfDay()));
                     pst.setInt(4, span.getEnd().get(DateTimeFieldType.minuteOfDay()));
                     pst.executeUpdate();
                 }
             }
-            i++;
         }
+
         pst.close();
         
         return shopId;

@@ -69,7 +69,7 @@
     <string name="pref_header_about">About</string>
     <string name="pref_header_map">Map</string>
     <string name="pref_title_send_feedback">Send feedback</string>
-    <string name="pref_text_application_version">ShopPin Mate version 0.01.\nStepan Rezek, 2015.</string>
+    <string name="pref_text_application_version">ShopPin Mate version 1.0.\nStepan Rezek, 2015.</string>
     <string name="feedback_mail_subject">Application Feedback</string>
     <string name="feedback_mail_body">I would like to give you a feedback about the application:</string>
     <string name="choose_mail_client">Select email application</string>
@@ -82,5 +82,5 @@
     <string name="pref_description_shops_clustering_enabled">When shops are too close to each other at some level of zoom, they are clustered into a single big circle.</string>
     <string name="pref_description_shops_clustering_disabled">Shops will not be clustered at any given zoom level.</string>
     <string name="welcomeOverlayTitle">Welcome to ShopPin Mate!</string>
-    <string name="welcomeOverlayText">Long tap anywhere on the map to create a new shop</string>
+    <string name="welcomeOverlayText">Long tap anywhere on the map to add a new shop and edit its opening hours.</string>
 </resources>

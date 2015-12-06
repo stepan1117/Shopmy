@@ -16,4 +16,7 @@
 #   public *;
 #}
 -dontwarn org.flywaydb.core.**
+-dontwarn com.caverock.androidsvg.**
 -keep public class org.sqldroid.**
+-keep class org.joda.time.** { *; }
+-keep interface org.joda.time.** { *; }

@@ -145,13 +145,40 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
         refreshFromDb();
         scheduleStatusUpdates();
 
-        new ShowcaseView.Builder(this)
-                .setTarget(new ViewTarget(R.id.map, this))
-                .setContentTitle(getString(R.string.welcomeOverlayTitle))
-                .setContentText(getString(R.string.welcomeOverlayText))
-                .setStyle(R.style.ShoppinMateShowcaseTheme)
-                .hideOnTouchOutside()
-                .build();
+        if (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("showcase_displayed",false)) {
+
+            new ShowcaseView.Builder(this)
+                    .setTarget(new ViewTarget(R.id.map, this))
+                    .setContentTitle(getString(R.string.welcomeOverlayTitle))
+                    .setContentText(getString(R.string.welcomeOverlayText))
+                    .setStyle(R.style.ShoppinMateShowcaseTheme)
+                    .hideOnTouchOutside()
+                    .build();
+
+//            try {
+//                SVG svg = SVG.getFromResource(this, R.raw.hand);
+//
+//                SVGImageView svgImageView = new SVGImageView(this);
+//                svgImageView.setSVG(svg);
+//
+//
+//                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams
+//                        (RelativeLayout.LayoutParams.WRAP_CONTENT,
+//                                RelativeLayout.LayoutParams.WRAP_CONTENT);
+//
+//                params.addRule(RelativeLayout.CENTER_VERTICAL);
+//                params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+//                svgImageView.setLayoutParams(params);
+//
+//                v.addView(svgImageView);
+//
+//
+//            } catch (SVGParseException e) {
+//                e.printStackTrace();
+//            }
+
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("showcase_displayed", true).commit();
+        }
 
     }
 
@@ -417,7 +444,7 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()){
 //            case R.id.action_search:
-//                Toast.makeText(getApplicationContext(), "Tady bude hledani", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "Search not implemented yet", Toast.LENGTH_SHORT).show();
 //                return true;
             case R.id.action_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
@@ -447,6 +474,7 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
                 boolean shopsClustering = sharedPreferences.getBoolean("enable_shops_clustering", true);
                 if (mClusterManager != null){
                     mClusterManager.enableClustering(shopsClustering);
+                    mClusterManager.renderer.onAdd();
                 }
                 break;
             case "minimum_cluster_size":
@@ -459,6 +487,7 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
                 int minutesBeforeClosing = Integer.parseInt(sharedPreferences.getString("closing_soon_list", "15"));
                 if (mClusterManager != null){
                     mClusterManager.setMinutesBeforeClosing(minutesBeforeClosing);
+                    refreshStatuses();
                 }
                 break;
         }
@@ -472,7 +501,6 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
             super(context, map);
             renderer = new ShopClusterRenderer(context, map, this);
             algorithm = new PreCachingAlgorithmDecorator<>(new NonHierarchicalDistanceBasedShopItemAlgorithm<ShopInfoWrapper>());
-//            algorithm = new PreCachingAlgorithmDecorator<>(new GridBasedAlgorithm<ShopInfo>());
 
             setRenderer(renderer);
             setAlgorithm(algorithm);

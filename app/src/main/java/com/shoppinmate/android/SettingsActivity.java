@@ -228,7 +228,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
                     Intent mailTo = new Intent(Intent.ACTION_SEND);
                     mailTo.setType("message/rfc822"); // use from live device
-                    mailTo.putExtra(Intent.EXTRA_EMAIL, new String[]{"stepan1117@volny.cz"});
+                    mailTo.putExtra(Intent.EXTRA_EMAIL, new String[]{"feedback@shoppinmate.com"});
                     mailTo.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.feedback_mail_subject));
                     mailTo.putExtra(Intent.EXTRA_TEXT, getResources().getString(R.string.feedback_mail_body));
                     startActivity(Intent.createChooser(mailTo, getResources().getString(R.string.choose_mail_client)));
