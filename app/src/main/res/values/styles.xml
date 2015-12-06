@@ -19,4 +19,26 @@
         <item name="android:src">@drawable/ic_more_vert_white_24dp</item>
     </style>
 
+    <style name="ShoppinMateShowcaseTheme" parent="ShowcaseView.Light">
+        <item name="sv_titleTextAppearance">@style/TextAppearance.ShoppinMateShowcaseTheme.Title</item>
+        <item name="sv_detailTextAppearance">@style/TextAppearance.ShoppinMateShowcaseTheme.Detail.Light</item>
+        <item name="sv_buttonText">Hide</item>
+        <item name="sv_tintButtonColor">true</item>
+        <item name="sv_backgroundColor">#b433b5e5</item>
+    </style>
+
+    <style name="TextAppearance.ShoppinMateShowcaseTheme.Title" parent="android:style/TextAppearance.Large">
+        <item name="android:textColor">#ffffff</item>
+    </style>
+
+    <style name="TextAppearance.ShoppinMateShowcaseTheme.Detail" parent="android:style/TextAppearance">
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <style name="TextAppearance.ShoppinMateShowcaseTheme.Detail.Light">
+        <item name="android:textColor">#333333</item>
+        <item name="android:shadowColor">#FF0000</item>
+        <item name="android:shadowRadius">0</item>
+    </style>
+
 </resources>

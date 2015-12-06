@@ -2,6 +2,7 @@ package com.shoppinmate.android.maps.renderer;
 
 import android.content.Context;
 
+import com.android.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -9,7 +10,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
-import com.android.R;
 import com.shoppinmate.android.ShoppinmateApplication;
 import com.shoppinmate.android.format.HourMinuteFormatter;
 import com.shoppinmate.android.maps.ShopInfoWrapper;
@@ -24,15 +24,30 @@ import java.util.List;
  * Created by Stepan on 31. 10. 2015.
  */
 public class ShopClusterRenderer extends DefaultClusterRenderer<ShopInfoWrapper> {
+    private boolean clusteringEnabled =  true;
+    private int clusterSize = 7;
+    private int minutesBeforeClosing = 15;
+
     public ShopClusterRenderer(Context context, GoogleMap map, ClusterManager<ShopInfoWrapper> clusterManager) {
         super(context, map, clusterManager);
     }
 
+    public void enableClustering(boolean enabled){
+        clusteringEnabled = enabled;
+    }
+
+    public void setClusterSize(int size){
+        clusterSize = size;
+    }
+
+    public void setMinutesBeforeClosing(int minutesBeforeClosing){
+        this.minutesBeforeClosing = minutesBeforeClosing;
+    }
 
     public BitmapDescriptor getShopStatusIcon(ShopInfoWrapper info){
         BitmapDescriptor icon = null;
 
-        switch (ShopInfoService.decideShopStatus(info.getInfo())){
+        switch (ShopInfoService.decideShopStatus(info.getInfo(), minutesBeforeClosing)){
             case OPEN:
                 icon = BitmapDescriptorFactory.fromResource(R.drawable.shopping_cart_green);
                 break;
@@ -60,7 +75,10 @@ public class ShopClusterRenderer extends DefaultClusterRenderer<ShopInfoWrapper>
 
     @Override
     protected boolean shouldRenderAsCluster(Cluster<ShopInfoWrapper> cluster) {
-        return cluster.getSize() > 7;
+        if (clusteringEnabled)
+            return cluster.getSize() > clusterSize;
+        else
+            return false;
     }
 
     private String buildSnippet(ShopInfo shopInfo) {

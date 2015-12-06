@@ -16,7 +16,7 @@ public class ShopInfoService {
     public enum ShopStatus {OPEN, CLOSING_SOON, CLOSED};
 
 
-    public static ShopStatus decideShopStatus(ShopInfo info){
+    public static ShopStatus decideShopStatus(ShopInfo info, int minutesBeforeClosing){
         LocalDate now = new LocalDate();
         ShopInfo.DAYS day = ShopInfo.DAYS.values()[now.getDayOfWeek() - 1];
         List<TimeSpan> hours = info.getOpeningHours().get(day.toString());
@@ -24,7 +24,7 @@ public class ShopInfoService {
             for (TimeSpan span : hours){
                 Interval interval = new Interval(span.getStart().toDateTimeToday(), span.getEnd().toDateTimeToday());
                 if (interval.containsNow()){
-                    if (interval.getEnd().isAfter(new DateTime().plusMinutes(15))){
+                    if (interval.getEnd().isAfter(new DateTime().plusMinutes(minutesBeforeClosing))){
                         return ShopStatus.OPEN;
                     } else {
                         return ShopStatus.CLOSING_SOON;

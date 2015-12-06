@@ -3,6 +3,7 @@ package com.shoppinmate.android;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
@@ -11,13 +12,15 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.android.R;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -51,7 +54,7 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
         GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerClickListener,
         GoogleMap.OnMarkerDragListener,
         ClusterManager.OnClusterItemInfoWindowClickListener<ShopInfoWrapper>,
-        Toolbar.OnMenuItemClickListener {
+        Toolbar.OnMenuItemClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private ShopClusterManager mClusterManager;
 
@@ -65,6 +68,7 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shop_list);
 
@@ -85,6 +89,7 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
             }
         }
         setUpLocationManager();
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
     }
 
 //    @Override
@@ -106,6 +111,7 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mClusterManager = new ShopClusterManager(this, mMap);
+        readPreferences();
 
         mMap.setMyLocationEnabled(true);
         mMap.setOnMapLongClickListener(this);
@@ -139,6 +145,14 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
         refreshFromDb();
         scheduleStatusUpdates();
 
+        new ShowcaseView.Builder(this)
+                .setTarget(new ViewTarget(R.id.map, this))
+                .setContentTitle(getString(R.string.welcomeOverlayTitle))
+                .setContentText(getString(R.string.welcomeOverlayText))
+                .setStyle(R.style.ShoppinMateShowcaseTheme)
+                .hideOnTouchOutside()
+                .build();
+
     }
 
     @Override
@@ -147,6 +161,7 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
         try {
             locationManager.removeUpdates(locationListener);
             timer.cancel();
+            PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
         } catch (SecurityException se){
             ;
         }
@@ -167,6 +182,7 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
             }
         }
         scheduleStatusUpdates();
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
     }
 
     private void locationChanged(Location location) {
@@ -400,15 +416,52 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.action_search:
-                Toast.makeText(getApplicationContext(), "Tady bude hledani", Toast.LENGTH_SHORT).show();
-                return true;
+//            case R.id.action_search:
+//                Toast.makeText(getApplicationContext(), "Tady bude hledani", Toast.LENGTH_SHORT).show();
+//                return true;
             case R.id.action_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
         }
         return false;
+    }
+
+    private void readPreferences(){
+        if (mClusterManager != null) {
+            boolean shopsClustering = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("enable_shops_clustering", true);
+            mClusterManager.enableClustering(shopsClustering);
+
+            int clusterSize = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("minimum_cluster_size", "7"));
+            mClusterManager.setClusterSize(clusterSize);
+
+            int minutesBeforeClosing = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("closing_soon_list", "15"));
+            mClusterManager.setMinutesBeforeClosing(minutesBeforeClosing);
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        switch (key){
+            case "enable_shops_clustering":
+                boolean shopsClustering = sharedPreferences.getBoolean("enable_shops_clustering", true);
+                if (mClusterManager != null){
+                    mClusterManager.enableClustering(shopsClustering);
+                }
+                break;
+            case "minimum_cluster_size":
+                int clusterSize = Integer.parseInt(sharedPreferences.getString("minimum_cluster_size", "7"));
+                if (mClusterManager != null){
+                    mClusterManager.setClusterSize(clusterSize);
+                }
+                break;
+            case "closing_soon_list":
+                int minutesBeforeClosing = Integer.parseInt(sharedPreferences.getString("closing_soon_list", "15"));
+                if (mClusterManager != null){
+                    mClusterManager.setMinutesBeforeClosing(minutesBeforeClosing);
+                }
+                break;
+        }
     }
 
     public class ShopClusterManager extends ClusterManager<ShopInfoWrapper> {
@@ -430,6 +483,18 @@ public class ShopListActivity extends FragmentActivity implements OnMapReadyCall
             this.renderer = view;
 
             super.setRenderer(view);
+        }
+
+        public void enableClustering(boolean enable){
+            ((ShopClusterRenderer)renderer).enableClustering(enable);
+        }
+
+        public void setClusterSize(int size){
+            ((ShopClusterRenderer)renderer).setClusterSize(size);
+        }
+
+        public void setMinutesBeforeClosing(int minutes){
+            ((ShopClusterRenderer)renderer).setMinutesBeforeClosing(minutes);
         }
 
 //        public ShopInfo markerToInfo(Marker m) {

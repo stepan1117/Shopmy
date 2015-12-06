@@ -81,4 +81,6 @@
     <string name="pref_description_closing_soon">The number of minutes before shop\'s icon will turn orange</string>
     <string name="pref_description_shops_clustering_enabled">When shops are too close to each other at some level of zoom, they are clustered into a single big circle.</string>
     <string name="pref_description_shops_clustering_disabled">Shops will not be clustered at any given zoom level.</string>
+    <string name="welcomeOverlayTitle">Welcome to ShopPin Mate!</string>
+    <string name="welcomeOverlayText">Long tap anywhere on the map to create a new shop</string>
 </resources>
